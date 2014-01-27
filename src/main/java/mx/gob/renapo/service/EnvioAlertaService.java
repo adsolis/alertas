@@ -52,13 +52,14 @@ public class EnvioAlertaService {
 			historicoAlertaDAO = (DAOHistoricoAlerta) context.getBean("historialAlertaDAO");	
 			historicoHistoricoAlertaDTO = envioAlertaCorreo(alertaDTO);
 			historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
-			if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1) {
+			if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1
+					&&
+				!alertaDTO.getContactoTwitter().equals("")) {
 				historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaDTO);
 				historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
 			}
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

@@ -18,11 +18,7 @@ public class DTOHistoricoAlerta {
 	
 	private String estatus;
 	
-	private Integer nivel;
-	
-	private String tipo;
-	
-	private String 	codigo;
+	private Long tipoAlerta;	
 	
 	private Date fechaCreacionAlerta;
 	
@@ -84,28 +80,12 @@ public class DTOHistoricoAlerta {
 		this.estatus = estatus;
 	}
 
-	public Integer getNivel() {
-		return nivel;
+	public Long getTipoAlerta() {
+		return tipoAlerta;
 	}
 
-	public void setNivel(Integer nivel) {
-		this.nivel = nivel;
-	}
-
-	public String getTipo() {
-		return tipo;
-	}
-
-	public void setTipo(String tipo) {
-		this.tipo = tipo;
-	}
-
-	public String getCodigo() {
-		return codigo;
-	}
-
-	public void setCodigo(String codigo) {
-		this.codigo = codigo;
+	public void setTipoAlerta(Long tipoAlerta) {
+		this.tipoAlerta = tipoAlerta;
 	}
 
 	public Date getFechaCreacionAlerta() {
