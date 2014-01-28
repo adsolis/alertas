@@ -7,7 +7,7 @@ public class Utileria {
 	/**
 	 * Formato para fecha corta
 	 */
-	public static final SimpleDateFormat FECHA_CORTA = new SimpleDateFormat("yyyy-dd-MM HH:mm:ss");
+	public static final SimpleDateFormat FECHA_CORTA = new SimpleDateFormat("dd-MM-YYYY");
 	
 	/**
 	 * Constante para estatus de envio de alarma a Twitter

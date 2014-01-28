@@ -19,7 +19,6 @@ import mx.gob.renapo.dao.DAOContacto;
 import mx.gob.renapo.dao.DAOHistoricoAlerta;
 import mx.gob.renapo.dto.DTOAlerta;
 import mx.gob.renapo.dto.DTOCodigoErrorAlerta;
-import mx.gob.renapo.dto.DTOContacto;
 import mx.gob.renapo.dto.DTOHistoricoAlerta;
 
 @Service("mailService")

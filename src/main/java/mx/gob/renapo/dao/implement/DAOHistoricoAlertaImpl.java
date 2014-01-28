@@ -11,12 +11,12 @@ import mx.gob.renapo.dto.DTOHistoricoAlerta;
 
 public class DAOHistoricoAlertaImpl implements DAOHistoricoAlerta{
 	
-	private DataSource dataSource;
+	private DataSource dataSourceOracle;
 	private JdbcTemplate jdbcTemplate;
 	private StringBuilder INSERT_HISTORICO_ALERTA = new StringBuilder()
-	.append("INSERT INTO historico_alerta ")
-	.append("(fechaEnvio, idCodigoError, texto, titulo, estatus, fechaCreacionAlerta, contacto, tipo_alerta) ")
-	.append("VALUES (?,?,?,?,?,?,?,?");
+	.append("INSERT INTO HISTORICO_ALERTA ")
+	.append("(FECHA_ENVIO, CODIGO_ERROR, TEXTO, TITULO, ESTATUS, FECHA_CREACION_ALERTA, CONTACTO, TIPO_ALERTA) ")
+	.append("VALUES (SYSDATE,?,?,?,?,TO_DATE(?, 'dd/MM/YYYY'),?,?)");
 
 	public DTOHistoricoAlerta consultaHistoricoAlerta() throws Exception {
 		// TODO Auto-generated method stub
@@ -33,27 +33,26 @@ public class DAOHistoricoAlertaImpl implements DAOHistoricoAlerta{
 		Connection con = null;
 		Object [] argumentos = null;
 		argumentos = new Object[] {
-				historicoAlerta.getFechaEnvio(),
 				historicoAlerta.getCodigoError().getClaveCodigo(),
 				historicoAlerta.getAlerta().getTexto().toString(),
 				historicoAlerta.getAlerta().getTitulo(),
 				historicoAlerta.getEstatus(),
-				historicoAlerta.getAlerta().getTipo(),
 				historicoAlerta.getAlerta().getFechaCreacionAlerta(),
-				historicoAlerta.getAlerta().getContactoCorreo()
+				historicoAlerta.getAlerta().getIdContacto(),
+				historicoAlerta.getAlerta().getTipo()
 		};
 		
 		
-		con = dataSource.getConnection();
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		con = dataSourceOracle.getConnection();
+		jdbcTemplate = new JdbcTemplate(dataSourceOracle);
 		jdbcTemplate.update(INSERT_HISTORICO_ALERTA.toString(), argumentos);
 		con.close();
 		con = null;
 
 	}
 
-	public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+	public void setDataSourceOracle(DataSource dataSourceOracle) {
+        this.dataSourceOracle = dataSourceOracle;
     }
 
 }

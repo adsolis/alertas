@@ -21,11 +21,12 @@ import mx.gob.renapo.util.Utileria;
 
 public class DAOAlertaImpl implements DAOAlerta{
 
-	private DataSource dataSource;
+	private DataSource dataSourceOracle;
 	private JdbcTemplate jdbcTemplate;
 	private static final StringBuilder QUERY_CONSULTAR_ALERTAS_PENDIENTES = new StringBuilder()
-	.append("select T1.id, T1.texto, T1.titulo, T1.fechaCreacion, T2.correo, T2.twitter ")
-	.append("from alerta_pendiente as T1, contacto as t2 where T1.tipo_alerta = ? ")
+	.append("select T1.id, T1.texto, T1.titulo, TO_CHAR(T1.fecha_creacion, 'dd/MM/YYYY') as FECHA_CREACION, ")
+	.append("T1.contacto, T2.correo, T2.twitter ")
+	.append("from alerta T1, contacto t2 where T1.tipo_alerta = ? ")
 	.append("and T1.contacto = T2.id");
 	
 
@@ -36,8 +37,8 @@ public class DAOAlertaImpl implements DAOAlerta{
 		};
 		Connection con = null;
 		List<Map<String, Object>> resultados = null;
-		con = dataSource.getConnection();
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		con = dataSourceOracle.getConnection();
+		jdbcTemplate = new JdbcTemplate(dataSourceOracle);
 		resultados = jdbcTemplate.queryForList(QUERY_CONSULTAR_ALERTAS_PENDIENTES.toString(), 
 		argumentosConsulta);
 		
@@ -87,8 +88,8 @@ public class DAOAlertaImpl implements DAOAlerta{
 		}
 		
 		Connection con = null;
-		con = dataSource.getConnection();
-		jdbcTemplate = new JdbcTemplate(dataSource);
+		con = dataSourceOracle.getConnection();
+		jdbcTemplate = new JdbcTemplate(dataSourceOracle);
 		jdbcTemplate.update(actualizaIntentosAlerta.toString(), argumentos);
 		
 	}
@@ -104,15 +105,16 @@ public class DAOAlertaImpl implements DAOAlerta{
 		alertaDTO.setId(Long.valueOf(linea.get("id").toString()));
 		alertaDTO.setTexto(new StringBuilder().append(linea.get("texto").toString()));
 		alertaDTO.setTitulo(linea.get("titulo").toString());
-		alertaDTO.setFechaCreacionAlerta(Utileria.FECHA_CORTA.format(linea.get("fechaCreacion")));
+		alertaDTO.setIdContacto(Long.valueOf(linea.get("contacto").toString()));
+		alertaDTO.setFechaCreacionAlerta(linea.get("fecha_creacion").toString());
 		alertaDTO.setContactoCorreo(linea.get("correo").toString());
 		alertaDTO.setContactoTwitter(linea.get("twitter").toString());
 		
 		return alertaDTO;
 	}
 	
-	public void setDataSource(DataSource dataSource) {
-		        this.dataSource = dataSource;
+	public void setDataSourceOracle(DataSource dataSourceOracle) {
+		        this.dataSourceOracle = dataSourceOracle;
 		    }
 
 

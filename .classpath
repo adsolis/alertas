@@ -48,5 +48,7 @@
 	<classpathentry kind="lib" path="/home/alex/Documents/workspace/alertas/lib/quartz-1.8.6.jar"/>
 	<classpathentry kind="lib" path="/home/alex/Documents/workspace/alertas/lib/slf4j-api-1.7.5.jar"/>
 	<classpathentry kind="lib" path="/home/alex/Documents/workspace/alertas/lib/twitter4j-core-3.0.5.jar"/>
+	<classpathentry kind="lib" path="/home/alex/Documents/workspace/alertas/lib/simplefan.jar"/>
+	<classpathentry kind="lib" path="/home/alex/Documents/workspace/alertas/lib/ojdbc6.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

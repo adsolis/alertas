@@ -19,7 +19,7 @@ import mx.gobb.renapo.connection.ConexionBBDD;
  */
 public class DAOContactoImpl implements DAOContacto{
 	
-	private DataSource dataSource;
+	private DataSource dataSourceOracle;
 
 	public void guardaContacto(DTOContacto contacto) throws Exception {
 		// TODO Auto-generated method stub
@@ -46,7 +46,7 @@ public class DAOContactoImpl implements DAOContacto{
 		.append(contactos.get(2))
 		.append("'");
 		
-		con = dataSource.getConnection();
+		con = dataSourceOracle.getConnection();
 		Statement stm = con.createStatement();
 		ResultSet rs = stm.executeQuery(consultaContactos.toString());
 		
@@ -67,8 +67,8 @@ public class DAOContactoImpl implements DAOContacto{
 	}
 
 
-	public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+	public void setDataSourceOracle(DataSource dataSourceOracle) {
+        this.dataSourceOracle = dataSourceOracle;
     }
 
 }

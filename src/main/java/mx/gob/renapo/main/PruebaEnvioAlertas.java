@@ -13,7 +13,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class PruebaEnvioAlertas implements Job{
+public class PruebaEnvioAlertas{
 
 	/**
 	 * @param args
@@ -29,7 +29,7 @@ public class PruebaEnvioAlertas implements Job{
         }
 	}
 	*/
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		try {
 			// Creacion de una instacia de Scheduler
 			Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler(); 
@@ -48,7 +48,7 @@ public class PruebaEnvioAlertas implements Job{
 			Trigger trigger = new SimpleTrigger( 
 			"HolaMundoTrigger", 
 			Scheduler.DEFAULT_GROUP, 
-			1, 30000);
+			3, 30000);
 
 			// Registro dentro del Scheduler
 			scheduler.scheduleJob(jobDetail, trigger);
@@ -66,9 +66,9 @@ public class PruebaEnvioAlertas implements Job{
 			System.out.println("Ocurrió una excepción");
 			}
 
-	}
+	}*/
 
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+	public static void main(String[] args) {
 		
 		//Create the application context
         ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
