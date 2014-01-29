@@ -21,7 +21,7 @@ public class DAOAlertaImpl implements DAOAlerta{
 	 */
 	private static final StringBuilder QUERY_CONSULTAR_ALERTAS_PENDIENTES = new StringBuilder()
 	.append("select T1.id, T1.texto, T1.titulo, TO_CHAR(T1.fecha_creacion, 'dd/MM/YYYY') as FECHA_CREACION, ")
-	.append("T1.contacto, T2.correo, T2.twitter ")
+	.append("T1.numero_intentos_correo, T1.numero_intentos_twitter, T1.contacto, T2.correo, T2.twitter ")
 	.append("from alerta T1, contacto T2 where T1.tipo_alerta = ? ")
 	.append("and T1.contacto = T2.id");
 	
@@ -131,6 +131,8 @@ public class DAOAlertaImpl implements DAOAlerta{
 		alertaDTO.setFechaCreacionAlerta(linea.get("fecha_creacion").toString());
 		alertaDTO.setContactoCorreo(linea.get("correo").toString());
 		alertaDTO.setContactoTwitter(Utileria.recuperaDato(linea.get("twitter")).toString());
+		alertaDTO.setNumeroIntentosCorreo(Integer.valueOf(linea.get("numero_intentos_correo").toString()));
+		alertaDTO.setNumeroIntentosTwitter(Integer.valueOf(linea.get("numero_intentos_twitter").toString()));
 		
 		return alertaDTO;
 	}

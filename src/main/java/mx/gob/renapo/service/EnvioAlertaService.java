@@ -15,7 +15,6 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.conf.ConfigurationBuilder;
 import mx.gob.renapo.dao.DAOAlerta;
 import mx.gob.renapo.dao.DAOContacto;
 import mx.gob.renapo.dao.DAOHistoricoAlerta;
