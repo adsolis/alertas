@@ -7,7 +7,7 @@ public class Utileria {
 	/**
 	 * Formato para fecha corta
 	 */
-	public static final SimpleDateFormat FECHA_CORTA = new SimpleDateFormat("dd-MM-YYYY");
+	public static final SimpleDateFormat FECHA_CORTA = new SimpleDateFormat("yyyy-MM-dd");
 	
 	/**
 	 * Constante para estatus de envio de alarma a Twitter
@@ -33,5 +33,9 @@ public class Utileria {
 	 * Constante para numero maximo de intentos de envio de alertas
 	 */
 	public static final Integer NUMERO_MAXIMO_INTENTO_ENVIO = 5;
+	
+	public static Object recuperaDato(Object objeto) {
+		return objeto == null ? " " : objeto; 
+	}
 	
 }

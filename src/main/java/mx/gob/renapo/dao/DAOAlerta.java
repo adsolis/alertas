@@ -1,6 +1,7 @@
 package mx.gob.renapo.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.springframework.dao.DataAccessException;
 
@@ -14,7 +15,7 @@ public interface DAOAlerta {
 	 * @return DTOAlerta 
 	 * @throws Exception
 	 */
-	DTOAlerta consultaAlerta(DTOAlerta alertaDTO) 
+	List<DTOAlerta> consultaAlerta(DTOAlerta alertaDTO) 
 			throws Exception;
 	
 	/**

@@ -32,8 +32,6 @@ public class EnvioAlertaService {
 	private DAOAlerta alertaDAO;
 	private DAOContacto contactoDAO;
 	private DAOHistoricoAlerta historicoAlertaDAO;
-	private static String OAUTH_CONSUMER_KEY = "rj2oX4NmL6Hezm9y7M3N7Q";
-	private static String OAUTH_CONSUMER_SECRET = "QRLErDFD4CWF4IzLigBQpohyYzLqiyor0qGCy8QniY";
 	ConfigurableApplicationContext context = null;
 	
 	/**
@@ -43,34 +41,37 @@ public class EnvioAlertaService {
 	public DTOHistoricoAlerta consultaAlertas() {
 		context = new ClassPathXmlApplicationContext("applicationContext.xml");
 		List<Object> criteriosContactos = new ArrayList<Object>();
-		DTOAlerta alertaDTO = new DTOAlerta();
+		DTOAlerta alerta = new DTOAlerta();
 		DTOHistoricoAlerta historicoHistoricoAlertaDTO = null;
-		alertaDTO.setTipo("1");
-		criteriosContactos.add(alertaDTO.getTipo());
+		alerta.setTipo("1");
+		criteriosContactos.add(alerta.getTipo());
 		alertaDAO = (DAOAlerta) context.getBean("alertaDAO");
-
+		List<DTOAlerta> listaAlertas = new ArrayList<DTOAlerta>();
 		try {
-			alertaDTO = alertaDAO.consultaAlerta(alertaDTO);
-			historicoAlertaDAO = (DAOHistoricoAlerta) context.getBean("historialAlertaDAO");	
-			historicoHistoricoAlertaDTO = envioAlertaCorreo(alertaDTO);
-			if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1) {
-				if(!historicoHistoricoAlertaDTO.getAlerta().getContactoTwitter().equals("")) {
-					if(historicoHistoricoAlertaDTO.getAlerta().getNumeroIntentosCorreo()
-							<Utileria.NUMERO_MAXIMO_INTENTO_ENVIO) {
-						historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaDTO);
-						historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
-					}
+			listaAlertas = alertaDAO.consultaAlerta(alerta);
+			historicoAlertaDAO = (DAOHistoricoAlerta) context.getBean("historialAlertaDAO");
+			for(DTOAlerta alertaDTO: listaAlertas) {
+				historicoHistoricoAlertaDTO = envioAlertaCorreo(alertaDTO);
+				if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1) {
+					if(!historicoHistoricoAlertaDTO.getAlerta().getContactoTwitter().equals("")) {
+						if(historicoHistoricoAlertaDTO.getAlerta().getNumeroIntentosCorreo()
+								<Utileria.NUMERO_MAXIMO_INTENTO_ENVIO) {
+							historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaDTO);
+							historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
+						}
+						else {
+							this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
+						}
+					}	
 					else {
 						this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
 					}
-				}	
-				else {
+				}
+				else if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()==1) {
 					this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
 				}
 			}
-			else if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()==1) {
-				this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
-			}
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -78,6 +79,11 @@ public class EnvioAlertaService {
 		return null;
 	}
 	
+	/**
+	 * Metodo para realizar el envio de la alerta por correo
+	 * @param alertaDTO
+	 * @return
+	 */
 	public DTOHistoricoAlerta envioAlertaCorreo(DTOAlerta alertaDTO)  {
 		SimpleMailMessage mensaje = new SimpleMailMessage();
 		mensaje.setTo(alertaDTO.getContactoCorreo());
@@ -125,20 +131,12 @@ public class EnvioAlertaService {
 	 */
 		
 	public DTOHistoricoAlerta envioAlertaTwitter(DTOAlerta alertaDTO) {
-		String accessToken = "170577565-BSzEOvxiFpFOd1GUacN9f4z6qPft6BGbg62yC7bw";
-		String accessTokenSecret = "Pjrdev033veEVCGVluAiiOgj5gAwtOsNCSmsOpeVlmisO";
-		ConfigurationBuilder conf = new ConfigurationBuilder()
-		.setDebugEnabled(true)
-		.setOAuthConsumerKey(OAUTH_CONSUMER_KEY)
-		.setOAuthConsumerSecret(OAUTH_CONSUMER_SECRET)
-		.setOAuthAccessToken(accessToken)
-		.setOAuthAccessTokenSecret(accessTokenSecret);
 		 String mensaje = alertaDTO.getContactoTwitter() + " "  + alertaDTO.getTexto().toString();
 		 DTOCodigoErrorAlerta codigoErrorAlerta = new DTOCodigoErrorAlerta();
 			DTOHistoricoAlerta historicoAlertaDTO = new DTOHistoricoAlerta();
 			historicoAlertaDTO.setAlerta(alertaDTO);
 			historicoAlertaDTO.setFechaEnvio("2014-01-14");
-	        Twitter twitter = new TwitterFactory(conf.build()).getInstance();
+	        Twitter twitter = TwitterFactory.getSingleton();
 	        
 	        try {
 	            Status status = twitter.updateStatus(mensaje);
