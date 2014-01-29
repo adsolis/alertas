@@ -1,10 +1,12 @@
 package mx.gob.renapo.service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.dao.DataAccessException;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,6 +22,7 @@ import mx.gob.renapo.dao.DAOHistoricoAlerta;
 import mx.gob.renapo.dto.DTOAlerta;
 import mx.gob.renapo.dto.DTOCodigoErrorAlerta;
 import mx.gob.renapo.dto.DTOHistoricoAlerta;
+import mx.gob.renapo.util.Utileria;
 
 @Service("mailService")
 public class EnvioAlertaService {
@@ -50,20 +53,29 @@ public class EnvioAlertaService {
 			alertaDTO = alertaDAO.consultaAlerta(alertaDTO);
 			historicoAlertaDAO = (DAOHistoricoAlerta) context.getBean("historialAlertaDAO");	
 			historicoHistoricoAlertaDTO = envioAlertaCorreo(alertaDTO);
-			historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
-			if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1
-					&&
-				!alertaDTO.getContactoTwitter().equals("")) {
-				historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaDTO);
-				historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
+			if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1) {
+				if(!historicoHistoricoAlertaDTO.getAlerta().getContactoTwitter().equals("")) {
+					if(historicoHistoricoAlertaDTO.getAlerta().getNumeroIntentosCorreo()
+							<Utileria.NUMERO_MAXIMO_INTENTO_ENVIO) {
+						historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaDTO);
+						historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
+					}
+					else {
+						this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
+					}
+				}	
+				else {
+					this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
+				}
+			}
+			else if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()==1) {
+				this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
+		}	
 		return null;
-		
 	}
 	
 	public DTOHistoricoAlerta envioAlertaCorreo(DTOAlerta alertaDTO)  {
@@ -92,6 +104,17 @@ public class EnvioAlertaService {
 		}
 		
 		return historicoAlertaDTO;
+	}
+	
+	/**
+	 * metodo para borrar alerta
+	 * @throws SQLException 
+	 * @throws DataAccessException 
+	 */
+	public void borrarAlertaGuardarHistorico(DTOAlerta alerta, 
+			DTOHistoricoAlerta historicoAlerta) throws DataAccessException, SQLException {
+		alertaDAO.borrarAlerta(alerta);
+		historicoAlertaDAO.guardaHistoricoAlerta(historicoAlerta);	
 	}
 	
 	/**

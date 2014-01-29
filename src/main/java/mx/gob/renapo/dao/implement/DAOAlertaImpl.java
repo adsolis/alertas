@@ -23,11 +23,20 @@ public class DAOAlertaImpl implements DAOAlerta{
 
 	private DataSource dataSourceOracle;
 	private JdbcTemplate jdbcTemplate;
+	/**
+	 * Constante con el query para recuperar las alertas y contactos con un tipo de alerta especifico
+	 */
 	private static final StringBuilder QUERY_CONSULTAR_ALERTAS_PENDIENTES = new StringBuilder()
 	.append("select T1.id, T1.texto, T1.titulo, TO_CHAR(T1.fecha_creacion, 'dd/MM/YYYY') as FECHA_CREACION, ")
 	.append("T1.contacto, T2.correo, T2.twitter ")
 	.append("from alerta T1, contacto t2 where T1.tipo_alerta = ? ")
 	.append("and T1.contacto = T2.id");
+	
+	/**
+	 * Constante con el query para eliminar una alerta
+	 */
+	private static final StringBuilder ELIMINAR_ALERTA = new StringBuilder()
+	.append("DELETE FROM alerta WHERE id = ?");
 	
 
 	public DTOAlerta consultaAlerta(DTOAlerta alertaDTO) throws Exception {
@@ -95,6 +104,22 @@ public class DAOAlertaImpl implements DAOAlerta{
 	}
 	
 	/**
+	 * Metodo para borrar una alerta
+	 * @param alerta argumento que contiene la alerta que se va a borrar
+	 * @throws DataAccessException en caso de error con la transaccion en la BBDD
+	 * @throws SQLException En caso de error en la conexxion a la BBDD
+	 */
+	public void borrarAlerta(DTOAlerta alerta) throws DataAccessException,
+			SQLException {
+		
+		Object[] argumentos = new Object[] {
+			alerta.getId()	
+		};	
+		jdbcTemplate = new JdbcTemplate(dataSourceOracle);
+		jdbcTemplate.update(ELIMINAR_ALERTA.toString(), argumentos);		
+	}
+	
+	/**
 	 * Metodo para mapear la alerta recuperada
 	 * @param linea
 	 * @param alertaDTO
@@ -112,6 +137,9 @@ public class DAOAlertaImpl implements DAOAlerta{
 		
 		return alertaDTO;
 	}
+	
+	
+
 	
 	public void setDataSourceOracle(DataSource dataSourceOracle) {
 		        this.dataSourceOracle = dataSourceOracle;

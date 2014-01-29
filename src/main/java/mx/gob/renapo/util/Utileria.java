@@ -29,4 +29,9 @@ public class Utileria {
 	 */
 	public static final String CAMPO_NUMERO_INTENTOS_ENVIO_CORREO = "numero_intentos_correo";
 	
+	/**
+	 * Constante para numero maximo de intentos de envio de alertas
+	 */
+	public static final Integer NUMERO_MAXIMO_INTENTO_ENVIO = 5;
+	
 }

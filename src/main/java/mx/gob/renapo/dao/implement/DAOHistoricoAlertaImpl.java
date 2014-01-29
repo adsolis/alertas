@@ -1,9 +1,11 @@
 package mx.gob.renapo.dao.implement;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import mx.gob.renapo.dao.DAOHistoricoAlerta;
@@ -26,10 +28,12 @@ public class DAOHistoricoAlertaImpl implements DAOHistoricoAlerta{
 	/**
 	 * Metodo para guardar la informacion de los resultados del envio de la alerta
 	 * @param historicoAlerta argumento con la informacion de los resultados del envio
-	 * @throws Exception
+	 * @throws DataAccessException en caso de error con la transaccion en la BBDD
+	 * @throws SQLException En caso de error en la conexxion a la BBDD
 	 */
 	public void guardaHistoricoAlerta(DTOHistoricoAlerta historicoAlerta)
-			throws Exception {
+			throws DataAccessException,
+			SQLException {
 		Connection con = null;
 		Object [] argumentos = null;
 		argumentos = new Object[] {
