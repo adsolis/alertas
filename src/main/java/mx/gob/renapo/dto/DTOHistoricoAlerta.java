@@ -8,7 +8,7 @@ public class DTOHistoricoAlerta {
 	
 	private String fechaEnvio;
 	
-	private DTOAlerta alerta;
+	private DTOAlertaContacto alertaContacto;
 	
 	private DTOCodigoErrorAlerta codigoError;
 	
@@ -40,12 +40,12 @@ public class DTOHistoricoAlerta {
 		this.fechaEnvio = fechaEnvio;
 	}
 
-	public DTOAlerta getAlerta() {
-		return alerta;
+	public DTOAlertaContacto getAlertaContacto() {
+		return alertaContacto;
 	}
 
-	public void setAlerta(DTOAlerta alerta) {
-		this.alerta = alerta;
+	public void setAlertaContacto(DTOAlertaContacto alertaContacto) {
+		this.alertaContacto = alertaContacto;
 	}
 
 	public DTOCodigoErrorAlerta getCodigoError() {

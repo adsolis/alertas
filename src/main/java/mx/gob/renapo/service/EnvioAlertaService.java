@@ -3,6 +3,7 @@ package mx.gob.renapo.service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -11,6 +12,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -19,6 +21,7 @@ import mx.gob.renapo.dao.DAOAlerta;
 import mx.gob.renapo.dao.DAOContacto;
 import mx.gob.renapo.dao.DAOHistoricoAlerta;
 import mx.gob.renapo.dto.DTOAlerta;
+import mx.gob.renapo.dto.DTOAlertaContacto;
 import mx.gob.renapo.dto.DTOCodigoErrorAlerta;
 import mx.gob.renapo.dto.DTOHistoricoAlerta;
 import mx.gob.renapo.util.Utileria;
@@ -45,31 +48,38 @@ public class EnvioAlertaService {
 		alerta.setTipo("1");
 		criteriosContactos.add(alerta.getTipo());
 		alertaDAO = (DAOAlerta) context.getBean("alertaDAO");
-		List<DTOAlerta> listaAlertas = new ArrayList<DTOAlerta>();
+		List<DTOAlertaContacto> listaAlertas = new ArrayList<DTOAlertaContacto>();
+		Integer alertasPendientes = 0;
 		try {
 			listaAlertas = alertaDAO.consultaAlerta(alerta);
 			historicoAlertaDAO = (DAOHistoricoAlerta) context.getBean("historialAlertaDAO");
-			for(DTOAlerta alertaDTO: listaAlertas) {
-				historicoHistoricoAlertaDTO = envioAlertaCorreo(alertaDTO);
+			for(DTOAlertaContacto alertaContactoDTO: listaAlertas) {
+				historicoHistoricoAlertaDTO = envioAlertaCorreo(alertaContactoDTO);
 				if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()!=1) {
-					if(!historicoHistoricoAlertaDTO.getAlerta().getContactoTwitter().equals("")) {
-						if(historicoHistoricoAlertaDTO.getAlerta().getNumeroIntentosCorreo()
+					if(!alertaContactoDTO.getContactoTwitter().equals("")) {
+						if(alertaContactoDTO.getNumeroIntentosCorreo()
 								<Utileria.NUMERO_MAXIMO_INTENTO_ENVIO) {
-							historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaDTO);
+							historicoHistoricoAlertaDTO = envioAlertaTwitter(alertaContactoDTO);
 							historicoAlertaDAO.guardaHistoricoAlerta(historicoHistoricoAlertaDTO);
 						}
 						else {
-							this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
+							this.borrarAlertaGuardarHistorico(alertaContactoDTO.getAlerta(), historicoHistoricoAlertaDTO);
 						}
 					}	
 					else {
-						this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
+						this.borrarAlertaGuardarHistorico(alertaContactoDTO.getAlerta(), historicoHistoricoAlertaDTO);
 					}
 				}
 				else if(historicoHistoricoAlertaDTO.getCodigoError().getClaveCodigo()==1) {
-					this.borrarAlertaGuardarHistorico(alertaDTO, historicoHistoricoAlertaDTO);
+					this.borrarAlertaGuardarHistorico(alertaContactoDTO.getAlerta(), historicoHistoricoAlertaDTO);
 				}
 			}
+			
+			alertasPendientes = alertaDAO.consultaNumeroAlertasPendientesPorEnviar
+					(listaAlertas.get(0).getAlerta().getId());
+			if(alertasPendientes==0){
+				alertaDAO.borrarAlerta(listaAlertas.get(0).getAlerta());
+			}	
 			
 
 		} catch (Exception e) {
@@ -83,14 +93,14 @@ public class EnvioAlertaService {
 	 * @param alertaDTO
 	 * @return
 	 */
-	public DTOHistoricoAlerta envioAlertaCorreo(DTOAlerta alertaDTO)  {
+	public DTOHistoricoAlerta envioAlertaCorreo(DTOAlertaContacto alertaContactoDTO)  {
 		SimpleMailMessage mensaje = new SimpleMailMessage();
-		mensaje.setTo(alertaDTO.getContactoCorreo());
-		mensaje.setText(alertaDTO.getTexto().toString());
-		mensaje.setSubject(alertaDTO.getTitulo());
+		mensaje.setTo(alertaContactoDTO.getContactoCorreo());
+		mensaje.setText(alertaContactoDTO.getAlerta().getTexto().toString());
+		mensaje.setSubject(alertaContactoDTO.getAlerta().getTitulo());
 		DTOCodigoErrorAlerta codigoErrorAlerta = new DTOCodigoErrorAlerta();
 		DTOHistoricoAlerta historicoAlertaDTO = new DTOHistoricoAlerta();
-		historicoAlertaDTO.setAlerta(alertaDTO);
+		historicoAlertaDTO.setAlertaContacto(alertaContactoDTO);
 		historicoAlertaDTO.setFechaEnvio("2014-01-14");
 		try {
 			mailSender.send(mensaje);
@@ -100,11 +110,11 @@ public class EnvioAlertaService {
 			
 		}catch(MailException e) {
 			alertaDAO = (DAOAlerta) context.getBean("alertaDAO");
-			alertaDTO.setNumeroIntentosCorreo(alertaDTO.getNumeroIntentosCorreo()+1);
-			alertaDTO.setEstatusEnvioCorreo("Error al enviar correo");
+			alertaContactoDTO.setNumeroIntentosCorreo(alertaContactoDTO.getNumeroIntentosCorreo()+1);
+			alertaContactoDTO.setEstatusEnvioCorreo("Error al enviar correo");
 			codigoErrorAlerta.setClaveCodigo(2);
 			historicoAlertaDTO.setCodigoError(codigoErrorAlerta);
-			historicoAlertaDTO.setAlerta(alertaDTO);
+			historicoAlertaDTO.setAlertaContacto(alertaContactoDTO);
 			historicoAlertaDTO.setEstatus("Error al enviar correo");
 		}
 		
@@ -118,7 +128,7 @@ public class EnvioAlertaService {
 	 */
 	public void borrarAlertaGuardarHistorico(DTOAlerta alerta, 
 			DTOHistoricoAlerta historicoAlerta) throws DataAccessException, SQLException {
-		alertaDAO.borrarAlerta(alerta);
+		alertaDAO.borrarAlertaContacto(alerta.getId(), historicoAlerta.getAlertaContacto().getIdContacto());
 		historicoAlertaDAO.guardaHistoricoAlerta(historicoAlerta);	
 	}
 	
@@ -129,12 +139,11 @@ public class EnvioAlertaService {
 	 * @throws Exception
 	 */
 		
-	public DTOHistoricoAlerta envioAlertaTwitter(DTOAlerta alertaDTO) {
-		 String mensaje = alertaDTO.getContactoTwitter() + " "  + alertaDTO.getTexto().toString();
+	public DTOHistoricoAlerta envioAlertaTwitter(DTOAlertaContacto alertaContactoDTO) {
+		 String mensaje = alertaContactoDTO.getContactoTwitter() + " "  + alertaContactoDTO.getAlerta().getTexto().toString();
 		 DTOCodigoErrorAlerta codigoErrorAlerta = new DTOCodigoErrorAlerta();
 			DTOHistoricoAlerta historicoAlertaDTO = new DTOHistoricoAlerta();
-			historicoAlertaDTO.setAlerta(alertaDTO);
-			historicoAlertaDTO.setFechaEnvio("2014-01-14");
+			historicoAlertaDTO.setAlertaContacto(alertaContactoDTO);
 	        Twitter twitter = TwitterFactory.getSingleton();
 	        
 	        try {

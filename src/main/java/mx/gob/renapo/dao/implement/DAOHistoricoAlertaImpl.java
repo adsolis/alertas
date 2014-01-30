@@ -38,15 +38,14 @@ public class DAOHistoricoAlertaImpl implements DAOHistoricoAlerta{
 		Object [] argumentos = null;
 		argumentos = new Object[] {
 				historicoAlerta.getCodigoError().getClaveCodigo(),
-				historicoAlerta.getAlerta().getTexto().toString(),
-				historicoAlerta.getAlerta().getTitulo(),
+				historicoAlerta.getAlertaContacto().getAlerta().getTexto().toString(),
+				historicoAlerta.getAlertaContacto().getAlerta().getTitulo(),
 				historicoAlerta.getEstatus(),
-				historicoAlerta.getAlerta().getFechaCreacionAlerta(),
-				historicoAlerta.getAlerta().getIdContacto(),
-				historicoAlerta.getAlerta().getTipo()
+				historicoAlerta.getAlertaContacto().getAlerta().getFechaCreacionAlerta(),
+				historicoAlerta.getAlertaContacto().getIdContacto(),
+				historicoAlerta.getAlertaContacto().getAlerta().getTipo()
 		};
-		
-		
+
 		con = dataSourceOracle.getConnection();
 		jdbcTemplate = new JdbcTemplate(dataSourceOracle);
 		jdbcTemplate.update(INSERT_HISTORICO_ALERTA.toString(), argumentos);

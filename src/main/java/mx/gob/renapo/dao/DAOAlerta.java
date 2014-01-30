@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 
 import mx.gob.renapo.dto.DTOAlerta;
+import mx.gob.renapo.dto.DTOAlertaContacto;
 import mx.gob.renapo.dto.DTOCodigoErrorAlerta;
 
 public interface DAOAlerta {
@@ -15,7 +16,7 @@ public interface DAOAlerta {
 	 * @return DTOAlerta 
 	 * @throws Exception
 	 */
-	List<DTOAlerta> consultaAlerta(DTOAlerta alertaDTO) 
+	List<DTOAlertaContacto> consultaAlerta(DTOAlerta alertaDTO) 
 			throws Exception;
 	
 	/**
@@ -28,7 +29,7 @@ public interface DAOAlerta {
 	 * @throws DataAccessException en caso de error con la transaccion con la BBDD
 	 * @throws SQLException en caso de error con la conexion con la BBDD
 	 */
-	void actualizaIntentosAlerta(DTOAlerta alerta, String campoNumeroIntentos, 
+	void actualizaIntentosAlerta(DTOAlertaContacto alerta, String campoNumeroIntentos, 
 			String campoEstatusContacto) 
 			throws DataAccessException, SQLException;
 	
@@ -39,5 +40,23 @@ public interface DAOAlerta {
 	 * @throws SQLException En caso de error en la conexxion a la BBDD
 	 */
 	void borrarAlerta(DTOAlerta alerta) throws DataAccessException, SQLException;
+	
+	/**
+	 * Metodo para borrar un registro de alerta_contacto
+	 * @param idAlerta argumento con el id de la alerta
+	 * @param idContacto argumento con el id del contacto
+	 * @throws DataAccessException en caso de que exista un error en la transaccion
+	 * @throws SQLException en caso de error en la conexion con la BBDD
+	 */
+	void borrarAlertaContacto(Long idAlerta, Long idContacto) throws DataAccessException, SQLException;
+	
+	/**
+	 * Metodo para consultar el numerod de alertas pendientes
+	 * @param idAlerta id de la alerta a conaultar en tabla de alerta_contacto
+	 * @return numero de alertas pendientes 
+	 *@throws DataAccessException en caso de que exista un error en la transaccion
+	 * @throws SQLException en caso de error en la conexion con la BBDD
+	 */
+	Integer consultaNumeroAlertasPendientesPorEnviar(Long idAlerta )throws DataAccessException, SQLException;
 
 }
