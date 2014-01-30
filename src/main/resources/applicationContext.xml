@@ -43,6 +43,10 @@ http://www.springframework.org/schema/context/spring-context-3.2.xsd">
       <property name="dataSourceOracle" ref="dataSourceOracle"/>
     </bean>
     
+    <bean id="configuracionAlertaDAO" class="mx.gob.renapo.dao.implement.DAOConfiguracionEnvioAlertaImpl">
+      <property name="dataSourceOracle" ref="dataSourceOracle"/>
+    </bean>
+    
     <bean id="dataSource" 
     class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver" />

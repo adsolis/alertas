@@ -3,7 +3,6 @@ package mx.gob.renapo.service;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -12,17 +11,18 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import mx.gob.renapo.dao.DAOAlerta;
+import mx.gob.renapo.dao.DAOConfiguracionEnvioAlerta;
 import mx.gob.renapo.dao.DAOContacto;
 import mx.gob.renapo.dao.DAOHistoricoAlerta;
 import mx.gob.renapo.dto.DTOAlerta;
 import mx.gob.renapo.dto.DTOAlertaContacto;
 import mx.gob.renapo.dto.DTOCodigoErrorAlerta;
+import mx.gob.renapo.dto.DTOConfiguracionEnvioAlerta;
 import mx.gob.renapo.dto.DTOHistoricoAlerta;
 import mx.gob.renapo.util.Utileria;
 
@@ -34,6 +34,7 @@ public class EnvioAlertaService {
 	private DAOAlerta alertaDAO;
 	private DAOContacto contactoDAO;
 	private DAOHistoricoAlerta historicoAlertaDAO;
+	private DAOConfiguracionEnvioAlerta configuracionAlertaDAO;
 	ConfigurableApplicationContext context = null;
 	
 	/**
@@ -42,15 +43,17 @@ public class EnvioAlertaService {
 	 */
 	public DTOHistoricoAlerta consultaAlertas() {
 		context = new ClassPathXmlApplicationContext("applicationContext.xml");
-		List<Object> criteriosContactos = new ArrayList<Object>();
 		DTOAlerta alerta = new DTOAlerta();
 		DTOHistoricoAlerta historicoHistoricoAlertaDTO = null;
-		alerta.setTipo("1");
-		criteriosContactos.add(alerta.getTipo());
+		DTOConfiguracionEnvioAlerta configurcionAlertaDTO =null;
 		alertaDAO = (DAOAlerta) context.getBean("alertaDAO");
+		configuracionAlertaDAO = (DAOConfiguracionEnvioAlerta) context.getBean("configuracionAlertaDAO");
 		List<DTOAlertaContacto> listaAlertas = new ArrayList<DTOAlertaContacto>();
 		Integer alertasPendientes = 0;
+		
 		try {
+			configurcionAlertaDTO = configuracionAlertaDAO.consultaConfiguracionEnvioAlerta();
+			alerta.setTipo(configurcionAlertaDTO.getTipo());
 			listaAlertas = alertaDAO.consultaAlerta(alerta);
 			historicoAlertaDAO = (DAOHistoricoAlerta) context.getBean("historialAlertaDAO");
 			for(DTOAlertaContacto alertaContactoDTO: listaAlertas) {
@@ -101,7 +104,6 @@ public class EnvioAlertaService {
 		DTOCodigoErrorAlerta codigoErrorAlerta = new DTOCodigoErrorAlerta();
 		DTOHistoricoAlerta historicoAlertaDTO = new DTOHistoricoAlerta();
 		historicoAlertaDTO.setAlertaContacto(alertaContactoDTO);
-		historicoAlertaDTO.setFechaEnvio("2014-01-14");
 		try {
 			mailSender.send(mensaje);
 			codigoErrorAlerta.setClaveCodigo(1);
@@ -183,6 +185,15 @@ public class EnvioAlertaService {
 
 	public void setHistoricoAlertaDAO(DAOHistoricoAlerta historicoAlertaDAO) {
 		this.historicoAlertaDAO = historicoAlertaDAO;
+	}
+
+	public DAOConfiguracionEnvioAlerta getConfiguracionAlertaDAO() {
+		return configuracionAlertaDAO;
+	}
+
+	public void setConfiguracionAlertaDAO(
+			DAOConfiguracionEnvioAlerta configuracionAlertaDAO) {
+		this.configuracionAlertaDAO = configuracionAlertaDAO;
 	}
 
 	public JavaMailSender getMailSender() {
